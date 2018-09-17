@@ -1,0 +1,24 @@
+{
+  "name": "webhook-receiver-proxy",
+  "version": "v0.0.0",
+  "description": "Receive webhooks and transform body suitable for CI used",
+  "main": "index.js",
+  "repository": "https://github.com/nlnwa/webhook-receiver-proxy",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {
+    "start": "node .",
+    "lint": "standard",
+    "test": "mocha",
+    "build:docker": "docker build -t norsknettarkiv/webhook-receiver-porxy:latest ."
+  },
+  "dependencies": {
+    "koa": "^2.5.3",
+    "koa-json-body": "^5.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "standard": "^12.0.1"
+  }
+}
