@@ -1,40 +1,20 @@
-const { describe, it, before, after } = require('mocha')
+const { describe, it } = require('mocha')
 const { assert } = require('chai')
-const http = require('http')
 const payload = require('./dockerhub-payload')
-const server = require('../lib/server')
-const config = require('../lib/config')
+const dockerHubToGitlabCI = require('../lib/dockerhub-gitlabci')
 
 describe('webhook-receiver-proxy', () => {
-  before(function () {
-    config.trigger = (payload) => {
-      const expected = `
-  variables[tag]=latest
-  variables[name]=testhook
-  variables[repo]=svendowideit/testhook
-  variables[repo_url]=https://registry.hub.docker.com/u/svendowideit/testhook/
-  `
-      assert.equal(expected, payload)
+  it('should transform docker hub json to gitlab ci trigger variables format', function () {
+    const expected = {
+      'variables[DOCKER_HUB_PUSH_TAG]': 'latest',
+      'variables[DOCKER_HUB_REPO_NAME]': 'testhook',
+      'variables[DOCKER_HUB_PUSHER]': 'trustedbuilder',
+      'variables[DOCKER_HUB_REPO_OWNER]': 'svendowideit',
+      'variables[DOCKER_HUB_REPO_URL]': 'https://registry.hub.docker.com/u/svendowideit/testhook/'
     }
-    this.connection = server(config)
-  })
 
-  after(function () {
-    this.connection.close()
-  })
+    const actual = dockerHubToGitlabCI(payload)
 
-  it('should transform docker hub json to gitlab ci trigger variables format', function (done) {
-    const options = {
-      port: config.server.port,
-      method: 'POST'
-    }
-    const req = http.request(options, (res) => {
-      res.on('data', () => {})
-      res.on('end', () => {
-        done()
-      })
-    })
-    req.write(JSON.stringify(payload))
-    req.end()
+    assert.deepEqual(actual, expected)
   })
 })
