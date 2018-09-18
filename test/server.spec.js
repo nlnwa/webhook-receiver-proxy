@@ -1,20 +1,50 @@
 const { describe, it } = require('mocha')
 const { assert } = require('chai')
-const payload = require('./dockerhub-payload')
-const dockerHubToGitlabCI = require('../lib/dockerhub-transformer')
+const dockerhub = require('../lib/dockerhub')
+const github = require('../lib/github')
 
 describe('webhook-receiver-proxy', () => {
-  it('should transform docker hub json to gitlab ci trigger variables format', function () {
-    const expected = {
-      'variables[DOCKER_HUB_PUSH_TAG]': 'latest',
-      'variables[DOCKER_HUB_REPO_NAME]': 'testhook',
-      'variables[DOCKER_HUB_PUSHER]': 'trustedbuilder',
-      'variables[DOCKER_HUB_REPO_OWNER]': 'svendowideit',
-      'variables[DOCKER_HUB_REPO_URL]': 'https://registry.hub.docker.com/u/svendowideit/testhook/'
+  describe('dockerhub plugin', function () {
+    it('should transform docker hub json to gitlab ci trigger variables format', function () {
+      const payload = require('./dockerhub-payload')
+      const actual = dockerhub.transform(payload)
+      const expected = {
+        'variables[DOCKER_HUB_PUSH_TAG]': 'latest',
+        'variables[DOCKER_HUB_REPO_NAME]': 'testhook',
+        'variables[DOCKER_HUB_PUSHER]': 'trustedbuilder',
+        'variables[DOCKER_HUB_REPO_OWNER]': 'svendowideit',
+        'variables[DOCKER_HUB_REPO_URL]': 'https://registry.hub.docker.com/u/svendowideit/testhook/'
+      }
+      assert.deepEqual(actual, expected)
+    })
+  })
+
+  describe('github plugin', function () {
+    it('should transform github json to gitlab ci trigger variables format', function () {
+      const payload = require('./github-payload')
+      const actual = github.transform(payload)
+      const expected = {
+        'variables[GITHUB_REF]': 'refs/tags/simple-tag',
+        'variables[GITHUB_HEAD]': undefined,
+        'variables[GITHUB_REPO_NAME]': 'Hello-World',
+        'variables[GITHUB_PUSHER]': 'Codertocat',
+        'variables[GITHUB_REPO_OWNER]': 'Codertocat',
+        'variables[GITHUB_REPO_URL]': 'https://github.com/Codertocat/Hello-World'
+      }
+      assert.deepEqual(actual, expected)
+    })
+  })
+
+  describe('plugins', function () {
+    function assertPlugin (plugin) {
+      return plugin.id instanceof Function &&
+        plugin.transform instanceof Function &&
+        plugin.authenticate instanceof Function &&
+        typeof plugin.name === 'string'
     }
 
-    const actual = dockerHubToGitlabCI(payload)
+    it('dockerhub should implement interface', () => assert.isTrue(assertPlugin(dockerhub)))
 
-    assert.deepEqual(actual, expected)
+    it('github should implement interface', () => assert.isTrue(assertPlugin(github)))
   })
 })
