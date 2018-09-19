@@ -11,7 +11,8 @@ COPY . .
 
 ENV HOST=0.0.0.0 \
     PORT=80 \
-    API_KEY="" \
+    GITHUB_API_KEY="" \
+    DOCKER_HUB_API_KEY="" \
     UPSTREAM_HOST=localhost \
     UPSTREAM_PORT=443 \
     UPSTREAM_PATH=/ \
