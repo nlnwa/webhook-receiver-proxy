@@ -28,7 +28,7 @@ describe('webhook-receiver-proxy', () => {
       const expected = {
         'variables[WEBHOOK_ORIGIN]': 'GitHub',
         'variables[GITHUB_REF]': 'refs/tags/simple-tag',
-        'variables[GITHUB_HEAD]': undefined,
+        'variables[GITHUB_HEAD]': '0000000000000000000000000000000000000000',
         'variables[GITHUB_REPO_NAME]': 'Hello-World',
         'variables[GITHUB_PUSHER]': 'Codertocat',
         'variables[GITHUB_REPO_OWNER]': 'Codertocat',
