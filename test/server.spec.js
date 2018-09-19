@@ -2,13 +2,15 @@ const { describe, it } = require('mocha')
 const { assert } = require('chai')
 const dockerhub = require('../lib/dockerhub')
 const github = require('../lib/github')
+const manual = require('../lib/manual')
 
 describe('webhook-receiver-proxy', () => {
   describe('dockerhub plugin', function () {
     it('should transform docker hub json to gitlab ci trigger variables format', function () {
       const payload = require('./dockerhub-payload')
-      const actual = dockerhub.transform(payload)
+      const actual = dockerhub.transform({ request: { body: payload } })
       const expected = {
+        'variables[WEBHOOK_ORIGIN]': 'Docker Hub',
         'variables[DOCKER_HUB_PUSH_TAG]': 'latest',
         'variables[DOCKER_HUB_REPO_NAME]': 'testhook',
         'variables[DOCKER_HUB_PUSHER]': 'trustedbuilder',
@@ -22,8 +24,9 @@ describe('webhook-receiver-proxy', () => {
   describe('github plugin', function () {
     it('should transform github json to gitlab ci trigger variables format', function () {
       const payload = require('./github-payload')
-      const actual = github.transform(payload)
+      const actual = github.transform({ request: { body: payload } })
       const expected = {
+        'variables[WEBHOOK_ORIGIN]': 'GitHub',
         'variables[GITHUB_REF]': 'refs/tags/simple-tag',
         'variables[GITHUB_HEAD]': undefined,
         'variables[GITHUB_REPO_NAME]': 'Hello-World',
@@ -46,5 +49,7 @@ describe('webhook-receiver-proxy', () => {
     it('dockerhub should implement interface', () => assert.isTrue(assertPlugin(dockerhub)))
 
     it('github should implement interface', () => assert.isTrue(assertPlugin(github)))
+
+    it('manual should implement interface', () => assert.isTrue(assertPlugin(manual)))
   })
 })
