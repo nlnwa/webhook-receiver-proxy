@@ -1,8 +1,7 @@
 const { describe, it } = require('mocha')
 const { assert } = require('chai')
-const dockerhub = require('../lib/dockerhub')
-const github = require('../lib/github')
-const manual = require('../lib/manual')
+const dockerhub = require('../lib/plugins/dockerhub')('DOCKER_HUB_API_KEY')
+const github = require('../lib/plugins/github')('GITHUB_API_KEY')
 
 describe('webhook-receiver-proxy', () => {
   describe('dockerhub plugin', function () {
@@ -39,17 +38,15 @@ describe('webhook-receiver-proxy', () => {
   })
 
   describe('plugins', function () {
-    function assertPlugin (plugin) {
+    function isPlugin (plugin) {
       return plugin.id instanceof Function &&
         plugin.transform instanceof Function &&
         plugin.authenticate instanceof Function &&
         typeof plugin.name === 'string'
     }
 
-    it('dockerhub should implement interface', () => assert.isTrue(assertPlugin(dockerhub)))
+    it('dockerhub should implement plugin interface', () => assert.isTrue(isPlugin(dockerhub)))
 
-    it('github should implement interface', () => assert.isTrue(assertPlugin(github)))
-
-    it('manual should implement interface', () => assert.isTrue(assertPlugin(manual)))
+    it('github should implement plugin interface', () => assert.isTrue(isPlugin(github)))
   })
 })
